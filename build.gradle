@@ -7,12 +7,19 @@ buildscript {
         
     }
     dependencies {
+        // jsoup HTML parser library @ https://jsoup.org/
+        classpath 'org.jsoup:jsoup:1.12.1'
+      //  classpath 'org.jsoup:jsoup:1.12.1-javadoc'
+      //  classpath 'org.jsoup:jsoup:1.12.1-sources'
         classpath 'com.android.tools.build:gradle:3.5.0'
         
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
+
 }
+
+
 
 allprojects {
     repositories {
@@ -25,3 +32,4 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
