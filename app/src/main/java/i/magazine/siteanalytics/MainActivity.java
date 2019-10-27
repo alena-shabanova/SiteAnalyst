@@ -1,5 +1,6 @@
 package i.magazine.siteanalytics;
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -13,7 +14,9 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
+import android.widget.GridView;
 import android.widget.ListView;
+import android.widget.TableLayout;
 
 import org.jsoup.Jsoup;
  import org.jsoup.nodes.Document;
@@ -24,14 +27,20 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.ArrayList;
 
+
 public class MainActivity extends AppCompatActivity {
 
     public Elements content; //
-    public ArrayList<String> titleContent = new ArrayList<String>();
+    public Element table;
+    public Elements idx;
+    public ArrayList<String> titleContent = new ArrayList<>();
     private ArrayAdapter<String> adapter;
     private ListView listView;
+    private GridView gridvw;
+    ArrayList<String> list = new ArrayList<String>();
 
 
+    @SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,31 +48,41 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        listView = (ListView) findViewById(R.id.list_view);
-
+      // listView = (ListView) findViewById(R.id.listview);
+        gridvw = findViewById(R.id.gridview);
         new NewContent().execute();
-        adapter = new ArrayAdapter<String>(this, R.layout.content_main, R.id.content_text, titleContent);
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list);
 
     }
     public class NewContent extends AsyncTask <String, Void, String>
     {
         @Override
         protected String doInBackground(String... arg) {
+
+            Document doc = null;
             try {
-                Document doc = (Document) Jsoup.connect("https://telemetr.me/channels/?order_column=views_per_post&order_direction=DESC").get();
-                 content = doc.select(".kt-portlet");
-                 titleContent.clear();
-                 for  (Element contents: content){
-                    titleContent.add(contents.text());
-                 }
+                doc =  Jsoup.connect("https://telemetr.me/channels/?order_column=views_per_post&order_direction=DESC").get();
+                // content = doc.select(".th_header");
+                table  = doc.select(".table-responsive").first();
+                // разбиваем строки по тегу
+                idx     =  table.select("tr");
+               // titleContent.clear();
+                for (int i =0; i < idx.size(); i++){
+                    Element row = idx.get(i); // строки
+                    Elements cols = row.select("td"); // столбцы
+                    for (Element e: cols) {
+                        list.add(e.text().toString());
+                    }
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
             return null;
         }
         @Override
         protected void onPostExecute (String result) {
-            listView.setAdapter(adapter);
+           gridvw.setAdapter(adapter);
         }
     }
 
